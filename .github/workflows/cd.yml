@@ -35,7 +35,7 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - id: meta
         run: echo "image=${IMAGE}:${{ github.event.workflow_run.head_sha || github.sha }}" >> "$GITHUB_OUTPUT"
-      - uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2
+      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SA }}
