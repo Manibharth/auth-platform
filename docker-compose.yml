@@ -1,0 +1,64 @@
+# Local development: app + PostgreSQL + Redis.
+#   cp .env.example .env && docker compose up --build
+# No secrets live here: the JWT key is generated into a local volume on first run.
+name: auth-platform
+
+x-app: &app
+  build: .
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+asyncpg://auth:auth@postgres:5432/auth
+    REDIS_URL: redis://redis:6379/0
+    JWT_PRIVATE_KEY_FILE: /secrets/jwt_private.pem
+  volumes:
+    - jwt-keys:/secrets
+  depends_on:
+    postgres: { condition: service_healthy }
+    redis: { condition: service_healthy }
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: auth
+      POSTGRES_DB: auth
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U auth -d auth"]
+      interval: 2s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      retries: 20
+
+  # Release step: key, migrations and seed run before the app starts, never inside it.
+  migrate:
+    <<: *app
+    user: "0:0"
+    command:
+      - sh
+      - -c
+      - >-
+        python -m app.cli generate-key --out /secrets/jwt_private.pem --if-missing &&
+        chown 10001:10001 /secrets/jwt_private.pem &&
+        alembic upgrade head &&
+        python -m app.cli seed
+    restart: "no"
+
+  app:
+    <<: *app
+    ports: ["8000:8000"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  pgdata:
+  jwt-keys:

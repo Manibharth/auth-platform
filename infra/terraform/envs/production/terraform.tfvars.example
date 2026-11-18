@@ -1,0 +1,6 @@
+project_id               = "my-gcp-project"
+region                   = "europe-west6"
+image                    = "europe-west6-docker.pkg.dev/my-gcp-project/auth-platform/auth-platform:bootstrap"
+alert_email              = "oncall@example.com"
+deployer_service_account = "auth-platform-deployer@my-gcp-project.iam.gserviceaccount.com"
+demo_email               = "demo@example.com"

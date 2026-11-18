@@ -1,0 +1,116 @@
+[project]
+name = "auth-platform"
+version = "1.0.0"
+description = "Production-style identity and API service: JWT (RS256) auth, rotating refresh tokens, RBAC, audit log."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    "email-validator>=2.2",
+    "sqlalchemy[asyncio]>=2.0.36",
+    "asyncpg>=0.30",
+    "alembic>=1.14",
+    "redis>=5.2",
+    "argon2-cffi>=23.1",
+    "bcrypt>=4.2",
+    "pyjwt[crypto]>=2.10",
+    "cryptography>=44",
+    "structlog>=24.4",
+    "prometheus-client>=0.21",
+    "opentelemetry-api>=1.28",
+    "opentelemetry-sdk>=1.28",
+    "opentelemetry-exporter-otlp-proto-http>=1.28",
+    "opentelemetry-instrumentation-fastapi>=0.49b0",
+    "opentelemetry-instrumentation-sqlalchemy>=0.49b0",
+    "opentelemetry-instrumentation-redis>=0.49b0",
+    "pyotp>=2.9",
+    "httpx>=0.28",
+    "uvicorn[standard]>=0.32",
+    "gunicorn>=23",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=1.0",
+    "pytest-cov>=6.0",
+    "hypothesis>=6.120",
+    "schemathesis>=3.38",
+    "testcontainers[postgres,redis]>=4.9",
+    "asgi-lifespan>=2.1",
+    "ruff>=0.8",
+    "mypy>=1.13",
+    "bandit[toml]>=1.8",
+    "pip-audit>=2.7",
+    "pre-commit>=4.0",
+    "detect-secrets>=1.5",
+    "locust>=2.32",
+]
+
+[tool.uv]
+package = false
+
+# ---------------------------------------------------------------- ruff
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "ASYNC", "C4", "SIM", "RUF", "PT", "N"]
+ignore = [
+    "B008",   # FastAPI Depends() in defaults is idiomatic
+    "RUF012", # mutable class attrs (SQLAlchemy / pydantic)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106", "S311", "PT011", "PT017", "PT018", "E501"]
+"load/**" = ["S311", "S106"]
+"scripts/**" = ["S603", "S607", "T201"]
+
+# ---------------------------------------------------------------- mypy
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+exclude = ["migrations/", "load/", "tests/"]
+
+[[tool.mypy.overrides]]
+module = ["pyotp.*", "testcontainers.*", "asgi_lifespan.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------- pytest
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: slower tests (concurrency, migrations)",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning:testcontainers.*",
+]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+concurrency = ["greenlet", "thread"]
+omit = ["app/cli.py", "app/core/telemetry.py"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+]
+
+# ---------------------------------------------------------------- bandit
+[tool.bandit]
+exclude_dirs = ["tests", "load", ".venv"]
