@@ -5,7 +5,7 @@ receive **15-minute RS256 access tokens** and **rotating refresh tokens with reu
 **role-protected** endpoints. It is built with FastAPI, PostgreSQL and Redis, and deploys to GCP Cloud Run
 with Terraform.
 
-[![ci](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![ci](https://github.com/Manibharth/auth-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Manibharth/auth-platform/actions/workflows/ci.yml)
 ![coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)
 ![python](https://img.shields.io/badge/python-3.12-blue)
 
