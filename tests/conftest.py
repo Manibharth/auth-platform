@@ -39,8 +39,8 @@ def service_urls() -> Iterator[tuple[str, str]]:
     if db_url and redis_url:
         yield db_url, redis_url
         return
-    from testcontainers.postgres import PostgresContainer
-    from testcontainers.redis import RedisContainer
+    from testcontainers.community.postgres import PostgresContainer
+    from testcontainers.community.redis import RedisContainer
 
     with (
         PostgresContainer("postgres:16-alpine", driver="asyncpg") as pg,

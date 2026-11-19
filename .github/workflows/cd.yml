@@ -25,7 +25,11 @@ env:
 
 jobs:
   build:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    # Skip (instead of failing) until GCP is configured: set the GCP_* repository variables
+    # listed in docs/infrastructure.md to turn deploys on.
+    if: >-
+      ${{ vars.GCP_WIF_PROVIDER != '' &&
+          (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success') }}
     runs-on: ubuntu-24.04
     outputs:
       image: ${{ steps.meta.outputs.image }}
