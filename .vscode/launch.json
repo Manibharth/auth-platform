@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "API: uvicorn (debug, reload)",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["--factory", "app.main:create_app", "--reload", "--port", "8000"],
+      "envFile": "${workspaceFolder}/.env",
+      "env": { "LOG_JSON": "false" },
+      "preLaunchTask": "Local: prepare database",
+      "jinja": true,
+      "justMyCode": true
+    },
+    {
+      "name": "Tests: current file",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "args": ["${file}", "-q"],
+      "justMyCode": false
+    },
+    {
+      "name": "CLI: seed",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "app.cli",
+      "args": ["seed"],
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

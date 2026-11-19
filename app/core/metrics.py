@@ -16,6 +16,12 @@ from prometheus_client import (
 )
 from prometheus_client import REGISTRY as DEFAULT_REGISTRY
 
+# Gunicorn's on_starting hook prepares this directory for the web server, but other entry
+# points (the CLI in the migrate step, scripts) import this module without gunicorn, and
+# unlabelled metrics open their mmap files at import time.
+if _multiproc_dir := os.environ.get("PROMETHEUS_MULTIPROC_DIR"):
+    os.makedirs(_multiproc_dir, exist_ok=True)
+
 HTTP_REQUESTS = Counter("http_requests_total", "HTTP requests", ["method", "route", "status"])
 HTTP_LATENCY = Histogram(
     "http_request_duration_seconds",

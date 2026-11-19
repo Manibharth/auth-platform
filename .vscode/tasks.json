@@ -1,0 +1,46 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Docker: start full stack",
+      "type": "shell",
+      "command": "test -f .env || cp .env.example .env; docker compose up --build -d && echo 'Open http://localhost:${APP_HOST_PORT:-8000}/docs'",
+      "problemMatcher": []
+    },
+    {
+      "label": "Docker: stop stack",
+      "type": "shell",
+      "command": "docker compose down",
+      "problemMatcher": []
+    },
+    {
+      "label": "Local: start postgres + redis",
+      "type": "shell",
+      "command": "test -f .env || cp .env.example .env; docker compose up -d postgres redis",
+      "problemMatcher": []
+    },
+    {
+      "label": "Local: prepare database",
+      "dependsOn": "Local: start postgres + redis",
+      "type": "shell",
+      "command": "uv run python -m app.cli generate-key --out secrets/jwt_private.pem --if-missing && uv run alembic upgrade head && uv run python -m app.cli seed",
+      "problemMatcher": []
+    },
+    {
+      "label": "Tests",
+      "type": "shell",
+      "command": "uv run pytest",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Lint + types",
+      "type": "shell",
+      "command": "uv run ruff check . && uv run ruff format --check . && uv run mypy app",
+      "problemMatcher": []
+    }
+  ]
+}
