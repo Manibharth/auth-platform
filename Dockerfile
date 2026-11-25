@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 # ---------------------------------------------------------------- builder
-FROM ghcr.io/astral-sh/uv:0.13.9-python3.12-trixie-slim AS builder
+FROM ghcr.io/astral-sh/uv:0.13.10-python3.12-trixie-slim AS builder
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=never
 WORKDIR /app
 COPY pyproject.toml uv.lock ./
